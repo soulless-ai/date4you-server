@@ -1,5 +1,5 @@
 module.exports = {
-    serverDomain: 'https://date4you-server-vmlp.onrender.com',
+    serverDomain: '127.0.0.1',
     serverPort: 8080,
     serverSSLkeyURL: '',
     serverSSLcrtURL: '',
