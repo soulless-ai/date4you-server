@@ -1,6 +1,6 @@
 module.exports = {
-    serverDomain: 'localhost',
-    serverPort: process.env.PORT || 8080,
+    serverDomain: 'https://date4you-server-vmlp.onrender.com',
+    serverPort: 8080,
     serverSSLkeyURL: '',
     serverSSLcrtURL: '',
     secretKey: '',
