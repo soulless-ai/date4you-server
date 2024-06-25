@@ -12,11 +12,16 @@ const { ConfirmCodeController } = require('./controllers/ComfirmCode.cjs');
 const User = require('./routes/user.cjs');
 const config = require('./config.cjs');
 
+const PORT = process.env.PORT || config.serverPort;
+
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
+
+    // Fork workers.
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
+
     cluster.on('exit', (worker, code, signal) => {
         console.log(`Worker ${worker.process.pid} died`);
         cluster.fork();
@@ -28,9 +33,7 @@ if (cluster.isMaster) {
 
     wss.on('connection', function connection(ws, req) {
         console.log('New WebSocket connection');
-        // Обработчик получения сообщения от клиента
         ws.on('message', function incoming(message) {
-            // Если сообщение представлено в виде буфера, преобразуем его в строку
             if (Buffer.isBuffer(message)) {
                 message = message.toString('utf8');
             }
@@ -59,18 +62,13 @@ if (cluster.isMaster) {
                 default:
                     break;
             }
-        }); 
-
-        // Отправляем клиенту сообщение о подключении
+        });
         ws.send('Welcome to the WebSocket server!');
-        
-        // Обработчик закрытия соединения клиентом
         ws.on('close', function() {
             console.log('WebSocket connection closed');
         });
     });
 
-    // Обработчик HTTP-запросов
     app.get('/', (req, res) => {
         res.send('WebSocket Server is running');
     });
@@ -90,12 +88,12 @@ if (cluster.isMaster) {
     });
 
     app.use(logRequest);
-
     app.use(User);
 
-    server.listen(config.serverPort, config.serverDomain, () => {
-        console.log(`Процесс ${process.pid} запущен и слушает порт ${config.serverPort} ...`);
+    server.listen(PORT, () => {
+        console.log(`Worker ${process.pid} started and listening on port ${PORT}`);
     });
+
     const router = express.Router();
     module.exports = { router, app, wss };
 }
