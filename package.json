@@ -1,0 +1,35 @@
+{
+  "name": "date4you",
+  "version": "1.0.0",
+  "description": "Сайт знакомств - Date4you",
+  "main": "src/index.cjs",
+  "scripts": {
+    "start": "node src/index.cjs",
+    "dev": "nodemon src/index.cjs"
+  },
+  "keywords": [
+    "websocket",
+    "server",
+    "nodejs"
+  ],
+  "author": "Ваше имя",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/nodemailer": "^6.4.14",
+    "@types/pg": "^8.11.5",
+    "@types/ws": "^8.5.10",
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.13",
+    "pg": "^8.11.5",
+    "ws": "^8.16.0"
+  }
+}
