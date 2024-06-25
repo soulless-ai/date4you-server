@@ -1,6 +1,6 @@
 module.exports = {
     serverDomain: '127.0.0.1',
-    serverPort: 5500,
+    serverPort: 10000,
     serverSSLkeyURL: '',
     serverSSLcrtURL: '',
     secretKey: '',
