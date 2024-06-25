@@ -1,5 +1,5 @@
 const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
+const os = require('os');
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -12,7 +12,8 @@ const { ConfirmCodeController } = require('./controllers/ComfirmCode.cjs');
 const User = require('./routes/user.cjs');
 const config = require('./config.cjs');
 
-const PORT = process.env.PORT || config.serverPort;
+const PORT = config.serverPort;
+const numCPUs = os.cpus().length;
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
@@ -31,9 +32,9 @@ if (cluster.isMaster) {
     const server = http.createServer(app);
     const wss = new WebSocket.Server({ server });
 
-    wss.on('connection', function connection(ws, req) {
+    wss.on('connection', (ws, req) => {
         console.log('New WebSocket connection');
-        ws.on('message', function incoming(message) {
+        ws.on('message', (message) => {
             if (Buffer.isBuffer(message)) {
                 message = message.toString('utf8');
             }
@@ -41,7 +42,7 @@ if (cluster.isMaster) {
             const req = JSON.parse(message);
             switch (req.className) {
                 case 'authenticate':
-                    if (!req.data.token) {
+                    if (req.data.token) {
                         jwt.verify(req.data.token, config.jwtSecret, (err, decoded) => {
                             if (err) {
                                 console.log('Invalid token');
@@ -64,7 +65,7 @@ if (cluster.isMaster) {
             }
         });
         ws.send('Welcome to the WebSocket server!');
-        ws.on('close', function() {
+        ws.on('close', () => {
             console.log('WebSocket connection closed');
         });
     });
@@ -72,14 +73,15 @@ if (cluster.isMaster) {
     app.get('/', (req, res) => {
         res.send('WebSocket Server is running');
     });
+
     app.use(cors({
         origin: '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     }));
     app.use(express.urlencoded({ extended: true, limit: '10mb', parameterLimit: 1000000 }));
     app.use(express.json());
-    app.use(function (req, res, next) {
-        res.header('Content-Type',  'application/json; charset=UTF-8');
+    app.use((req, res, next) => {
+        res.header('Content-Type', 'application/json; charset=UTF-8');
         next();
     });
     app.use((err, req, res, next) => {
