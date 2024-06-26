@@ -32,9 +32,11 @@ if (cluster.isMaster) {
     const server = http.createServer(app);
     const wss = new WebSocket.Server({ server });
 
-    wss.on('connection', (ws, req) => {
+    wss.on('connection', function connection(ws, req) {
         console.log('New WebSocket connection');
-        ws.on('message', (message) => {
+        // Обработчик получения сообщения от клиента
+        ws.on('message', function incoming(message) {
+            // Если сообщение представлено в виде буфера, преобразуем его в строку
             if (Buffer.isBuffer(message)) {
                 message = message.toString('utf8');
             }
@@ -42,7 +44,7 @@ if (cluster.isMaster) {
             const req = JSON.parse(message);
             switch (req.className) {
                 case 'authenticate':
-                    if (req.data.token) {
+                    if (!req.data.token) {
                         jwt.verify(req.data.token, config.jwtSecret, (err, decoded) => {
                             if (err) {
                                 console.log('Invalid token');
@@ -63,12 +65,17 @@ if (cluster.isMaster) {
                 default:
                     break;
             }
-        });
+        }); 
+
+        // Отправляем клиенту сообщение о подключении
         ws.send('Welcome to the WebSocket server!');
-        ws.on('close', () => {
+        
+        // Обработчик закрытия соединения клиентом
+        ws.on('close', function() {
             console.log('WebSocket connection closed');
         });
     });
+
 
     app.get('/', (req, res) => {
         res.send('WebSocket Server is running');

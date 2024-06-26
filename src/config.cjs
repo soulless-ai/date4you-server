@@ -1,5 +1,5 @@
 module.exports = {
-    serverDomain: '127.0.0.1',
+    serverDomain: 'localhost',
     serverPort: 10000,
     serverSSLkeyURL: '',
     serverSSLcrtURL: '',
