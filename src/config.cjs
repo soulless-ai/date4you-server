@@ -4,7 +4,7 @@ module.exports = {
     serverSSLkeyURL: '',
     serverSSLcrtURL: '',
     secretKey: '',
-    transporterMailRU: {
+    transporterGMail: {
         host: "smtp.gmail.com",
         port: 465,
         secure: true, // SSL подключение

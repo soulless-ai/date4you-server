@@ -19,13 +19,11 @@ class ConfirmCodeModel {
     };
 
     remove = async (phone) => {
-        const currentTime = new Date();
-        const minAge = new Date(currentTime.getTime() - 15 * 60 * 1000);
         const poolClients = await createPoolClients();
-        const query = 'DELETE FROM confirm WHERE phone = $1 AND created_at <= $2';
-        const values = [phone, minAge];
+        const query = 'DELETE FROM confirm WHERE phone = $1';
+        const values = [phone];
         const result = await executeQuery(poolClients, query, values, 'Ошибка при удалении сохраненного кода подтверждения из PostgreSQL: ');
-        return result ? result.rowCount === 1 : false;
+        return result ? result.rowCount > 0 : false;
     };
 
     removeOld = async () => {

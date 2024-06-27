@@ -1,10 +1,5 @@
 const { UserModel } = require('../models/User.cjs');
 
-const { ConfirmCodeModel } = require('../models/ConfirmCode.cjs');
-
-const { generateConfirmCode } = require('../utils/generator.cjs');
-const { sendConfirmCode } = require('../utils/mailer.cjs');
-
 class UserController {
     constructor(socket, message) {
         this.socket = socket;
@@ -12,6 +7,9 @@ class UserController {
     }
     WebSocketInput = () => {
         switch (this.message.type) {
+            case 'login':
+                this.login();
+                break;
             case 'get':
                 this.get();
                 break;
@@ -20,6 +18,26 @@ class UserController {
                 break;
             default:
                 break;
+        }
+    }
+    login = async () => {
+        try {
+            const userID = await new UserModel().login(this.message.data);
+            if (!userID) throw new Error('Неправильные данные...');
+            this.socket.send(JSON.stringify({
+                className: 'user',
+                success: true,
+                message: 'Login successful',
+                data: { userID }
+            }));
+        } catch (error) {
+            console.error('Error during login:', error);
+            this.socket.send(JSON.stringify({
+                className: 'user',
+                success: false,
+                message: 'Error during login',
+                error: error.message
+            }));
         }
     }
     get = async () => {
@@ -32,15 +50,9 @@ class UserController {
         };
         this.socket.send(JSON.stringify(response));
     }
-    post = async (data) => {
+    post = async () => {
         try {
-            const phoneExists = await new UserModel().checkExists(this.message.data.phone);
-            if (phoneExists) throw new Error('Данный phone уже зарегистрирован...');
-            const confirmCode = await generateConfirmCode();
-            if (!confirmCode) throw new Error('Проблемы при генерации кода подтверждения...');
-            new ConfirmCodeModel().save(this.message.data.phone, confirmCode);
-            await sendConfirmCode(this.message.data.phone, confirmCode);
-            new UserModel().create(this.message.data);
+            new UserModel().post(this.message.data);
             this.socket.send(JSON.stringify({ className: 'user', success: true, data: this.message.data }));
         } catch (error) {
             console.log(error);
